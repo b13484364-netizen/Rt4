@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق المحادثة الآمن</title>
+    <title>تطبيق المحادثة الآمن - Firebase</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Firebase SDK -->
@@ -52,7 +52,7 @@
     <div id="connectionStatus" class="hidden fixed top-4 right-4 z-50">
         <div class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 space-x-reverse">
             <div class="w-3 h-3 bg-white rounded-full online-indicator"></div>
-            <span id="statusText">متصل</span>
+            <span id="statusText">متصل بـ Firebase</span>
         </div>
     </div>
 
@@ -60,14 +60,13 @@
     <div id="loginScreen" class="min-h-screen gradient-bg flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full p-8">
             <!-- تنبيه حالة الاتصال -->
-            <div id="connectionAlert" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-xl border border-blue-200 dark:border-blue-800">
+            <div id="connectionAlert" class="mb-6 p-4 bg-green-50 dark:bg-green-900/30 rounded-xl border border-green-200 dark:border-green-800">
                 <div class="flex items-start space-x-3 space-x-reverse">
-                    <div class="text-2xl">🔄</div>
+                    <div class="text-2xl">🔥</div>
                     <div>
-                        <h3 class="font-semibold text-blue-800 dark:text-blue-200 mb-2">جاري الاتصال...</h3>
-                        <p class="text-sm text-blue-700 dark:text-blue-300">
-                            يتم تهيئة الاتصال بقاعدة البيانات...
-                     apiKey: "AIzaSyDN20jJdFoImN8PtmHxdfukOsrpRE7EwoU
+                        <h3 class="font-semibold text-green-800 dark:text-green-200 mb-2">متصل بـ Firebase</h3>
+                        <p class="text-sm text-green-700 dark:text-green-300">
+                            تطبيق المحادثة جاهز للاستخدام مع قاعدة البيانات السحابية
                         </p>
                     </div>
                 </div>
@@ -87,7 +86,7 @@
                     </div>
                     <div class="flex items-center">
                         <span class="w-2 h-2 bg-purple-500 rounded-full ml-2"></span>
-                        <span id="connectionType">Firebase</span>
+                        مدعوم بـ Firebase
                     </div>
                 </div>
             </div>
@@ -242,17 +241,18 @@
     </div>
 
     <script>
-        // ========== إعدادات Firebase (قم بتعديلها هنا) ==========
-        const FIREBASE_CONFIG = {
-            // للحصول على Firebase مجاني، اذهب إلى: https://console.firebase.google.com
-            apiKey: "your-api-key-here",
-            databaseURL: "https://your-project-default-rtdb.firebaseio.com",
-            projectId: "your-project-id"
+        // ========== إعدادات Firebase الخاصة بك ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyDN20jJdFoImN8PtmHxdfukOsrpRE7EwoU",
+            authDomain: "rt44-e8f81.firebaseapp.com",
+            databaseURL: "https://rt44-e8f81-default-rtdb.firebaseio.com", // أضف هذا السطر
+            projectId: "rt44-e8f81",
+            storageBucket: "rt44-e8f81.firebasestorage.app",
+            messagingSenderId: "633752556650",
+            appId: "1:633752556650:web:8241a000152864b1242613",
+            measurementId: "G-GM8BM9WPEH"
         };
-
-        // إعداد Demo Mode (إذا لم يكن لديك Firebase)
-        const USE_DEMO_MODE = true; // غيّر إلى false عند استخدام Firebase حقيقي
-        // ========================================================
+        // ================================================
 
         // إعداد الوضع المظلم
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -277,9 +277,8 @@
         let currentUser = null;
         let database = null;
         let messagesRef = null;
+        let usersRef = null;
         let isReady = false;
-        let isDemoMode = USE_DEMO_MODE;
-        let demoStorage = {};
 
         // عناصر DOM
         let loginScreen, chatScreen, imageGallery, usernameInput, passwordInput;
@@ -287,7 +286,7 @@
         let roomImagePreview, messagesContainer, messageInput, sendMessageBtn;
         let sendImageBtn, imageMessageInput, charCount, connectionStatus, statusText;
         let userCount, messageCount, roomStatus, shareRoomBtn, leaveRoomBtn;
-        let connectionAlert, connectionType;
+        let connectionAlert;
 
         // دالة إنشاء صورة SVG
         function createSVGImage(image) {
@@ -301,85 +300,40 @@
             return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
         }
 
-        // تهيئة قاعدة البيانات
-        function initializeDatabase() {
-            if (isDemoMode || !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === "your-api-key-here") {
-                initDemoMode();
-            } else {
-                initFirebase();
-            }
-        }
-
         // تهيئة Firebase
-        function initFirebase() {
+        function initializeFirebase() {
             try {
-                firebase.initializeApp(FIREBASE_CONFIG);
+                firebase.initializeApp(firebaseConfig);
                 database = firebase.database();
-                isDemoMode = false;
+                
                 updateConnectionStatus('متصل بـ Firebase', 'success');
-                connectionType.textContent = 'Firebase';
+                isReady = true;
+                
                 console.log('✅ Firebase تم تهيئته بنجاح');
+                
+                // اختبار الاتصال
+                database.ref('.info/connected').on('value', (snapshot) => {
+                    if (snapshot.val() === true) {
+                        showConnectionStatus('متصل بـ Firebase', 'success');
+                    } else {
+                        showConnectionStatus('انقطع الاتصال بـ Firebase', 'error');
+                    }
+                });
+                
             } catch (error) {
-                console.error('خطأ في Firebase:', error);
-                initDemoMode();
+                console.error('خطأ في تهيئة Firebase:', error);
+                updateConnectionStatus('خطأ في الاتصال', 'error');
+                showAlert('خطأ في الاتصال بـ Firebase: ' + error.message);
             }
-            isReady = true;
-        }
-
-        // تهيئة Demo Mode
-        function initDemoMode() {
-            isDemoMode = true;
-            
-            database = {
-                ref: function(path) {
-                    return {
-                        push: function(data) {
-                            const key = 'demo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                            if (!demoStorage[path]) demoStorage[path] = {};
-                            demoStorage[path][key] = { ...data, timestamp: Date.now() };
-                            
-                            setTimeout(() => {
-                                if (this.callbacks) {
-                                    this.callbacks.forEach(callback => {
-                                        callback({ key: key, val: () => demoStorage[path][key] });
-                                    });
-                                }
-                            }, 100);
-                            
-                            return { key: key };
-                        },
-                        on: function(event, callback) {
-                            if (!this.callbacks) this.callbacks = [];
-                            this.callbacks.push(callback);
-                            
-                            if (demoStorage[path]) {
-                                Object.keys(demoStorage[path]).forEach(key => {
-                                    setTimeout(() => {
-                                        callback({ key: key, val: () => demoStorage[path][key] });
-                                    }, 50);
-                                });
-                            }
-                        },
-                        off: function() {
-                            this.callbacks = [];
-                        }
-                    };
-                }
-            };
-
-            updateConnectionStatus('محادثات ٱمنة', 'warning');
-            connectionType.textContent = 'العرض الٱمن';
-            console.log('🎭 Demo Mode مُفعّل');
-            isReady = true;
         }
 
         // تحديث حالة الاتصال
         function updateConnectionStatus(message, type) {
             if (connectionAlert) {
-                const icon = type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '🔄';
+                const icon = type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌';
                 const colorClass = type === 'success' ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200' :
                                   type === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200' :
-                                  'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200';
+                                  'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200';
                 
                 connectionAlert.className = `mb-6 p-4 rounded-xl border ${colorClass}`;
                 connectionAlert.innerHTML = `
@@ -388,13 +342,33 @@
                         <div>
                             <h3 class="font-semibold mb-2">${message}</h3>
                             <p class="text-sm">
-                                ${type === 'success' ? 'جاهز للاستخدام!' : 
-                                  type === 'warning' ? 'يعمل محلياً - المحادثات لا تُحفظ بشكل دائم' : 
-                                  'يتم تهيئة الاتصال...'}
+                                ${type === 'success' ? 'تطبيق المحادثة جاهز للاستخدام مع قاعدة البيانات السحابية' : 
+                                  type === 'warning' ? 'يعمل في وضع محدود' : 
+                                  'تحقق من اتصالك بالإنترنت'}
                             </p>
                         </div>
                     </div>
                 `;
+            }
+        }
+
+        // عرض حالة الاتصال
+        function showConnectionStatus(message, type = 'error') {
+            if (!statusText) return;
+            statusText.textContent = message;
+            
+            const statusDiv = connectionStatus.querySelector('div');
+            statusDiv.className = `px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 space-x-reverse ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+            } text-white`;
+            
+            connectionStatus.classList.remove('hidden');
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    connectionStatus.classList.add('hidden');
+                }, 3000);
             }
         }
 
@@ -455,7 +429,7 @@
             enterRoomBtn.disabled = !(hasImage && hasUsername && hasPassword && isSystemReady);
             
             if (!isSystemReady) {
-                enterBtnText.textContent = '🔄 جاري التحضير...';
+                enterBtnText.textContent = '🔄 جاري الاتصال بـ Firebase...';
             } else if (hasImage && hasUsername && hasPassword) {
                 enterRoomBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 enterBtnText.textContent = '💬 دخول الغرفة';
@@ -495,7 +469,8 @@
             currentUser = {
                 id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 username: usernameInput.value.trim(),
-                joinTime: Date.now()
+                joinTime: Date.now(),
+                lastSeen: Date.now()
             };
 
             // الانتقال لشاشة المحادثة
@@ -508,16 +483,35 @@
             }
             if (roomStatus) roomStatus.textContent = currentUser.username;
             
-            // إعداد مراجع قاعدة البيانات
+            // إعداد مراجع Firebase
             messagesRef = database.ref(`rooms/${roomKey}/messages`);
+            usersRef = database.ref(`rooms/${roomKey}/users/${currentUser.id}`);
+
+            // تسجيل المستخدم في الغرفة
+            usersRef.set(currentUser);
 
             // الاستماع للرسائل
             messagesRef.on('child_added', (snapshot) => {
                 const message = snapshot.val();
                 if (message) {
                     displayMessage(message);
+                    updateMessageCount();
                 }
             });
+
+            // الاستماع للمستخدمين
+            const allUsersRef = database.ref(`rooms/${roomKey}/users`);
+            allUsersRef.on('value', (snapshot) => {
+                const users = snapshot.val() || {};
+                updateUserCount(Object.keys(users).length);
+            });
+
+            // تحديث آخر نشاط
+            const heartbeat = setInterval(() => {
+                if (usersRef) {
+                    usersRef.update({ lastSeen: Date.now() });
+                }
+            }, 30000);
 
             // إرسال رسالة انضمام
             const joinMessage = {
@@ -531,6 +525,15 @@
             messagesRef.push(joinMessage);
             
             if (messageInput) messageInput.focus();
+
+            // إزالة المستخدم عند إغلاق النافذة
+            window.addEventListener('beforeunload', () => {
+                if (usersRef) {
+                    usersRef.remove();
+                }
+                clearInterval(heartbeat);
+            });
+
             console.log('✅ تم دخول الغرفة:', roomKey);
         }
 
@@ -586,6 +589,18 @@
 
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // تحديث عداد المستخدمين
+        function updateUserCount(count) {
+            if (userCount) userCount.textContent = `• ${count} مستخدم`;
+        }
+
+        // تحديث عداد الرسائل
+        function updateMessageCount() {
+            if (!messageCount) return;
+            const count = messagesContainer.children.length - 1;
+            messageCount.textContent = `• ${Math.max(0, count)} رسالة`;
         }
 
         // إرسال رسالة
@@ -723,7 +738,7 @@
             const shareText = `🔐 انضم لغرفة المحادثة الآمنة!\n\n` +
                             `الصورة: ${selectedImage.name} ${selectedImage.emoji}\n` +
                             `كلمة المرور: ${passwordInput.value.trim()}\n\n` +
-                            `الرابط: ${window.location.origin}`;
+                            `الرابط: ${window.location.href}`;
             
             if (navigator.share) {
                 navigator.share({
@@ -754,6 +769,11 @@
                     messagesRef.push(leaveMessage);
                 }
 
+                // إزالة المستخدم من القائمة
+                if (usersRef) {
+                    usersRef.remove();
+                }
+
                 // إيقاف الاستماع
                 if (messagesRef) messagesRef.off();
 
@@ -772,6 +792,7 @@
                 currentRoom = null;
                 currentUser = null;
                 messagesRef = null;
+                usersRef = null;
             });
         }
 
@@ -867,10 +888,9 @@
             shareRoomBtn = document.getElementById('shareRoomBtn');
             leaveRoomBtn = document.getElementById('leaveRoomBtn');
             connectionAlert = document.getElementById('connectionAlert');
-            connectionType = document.getElementById('connectionType');
 
-            // تهيئة قاعدة البيانات
-            initializeDatabase();
+            // تهيئة Firebase
+            initializeFirebase();
             
             // تحميل المعرض
             loadImageGallery();
