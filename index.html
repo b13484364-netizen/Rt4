@@ -361,6 +361,49 @@
             document.documentElement.classList.add('dark');
         }
 
+        // الصور المتاحة (استخدام الصور المرفقة)
+        const availableImages = [
+            { 
+                url: 'https://pfst.cf2.poecdn.net/base/image/abeb3ce2ed0abacc1a1ad9263ed44c8c5bee481149ecd7e710312b4761c2a546?w=300&h=300', 
+                name: 'جبال الثلج',
+                id: 'mountain_snow'
+            },
+            { 
+                url: 'https://pfst.cf2.poecdn.net/base/image/65fb41e615a8e502c74f72b754cc9ba8cb5f527ef035fa295b98436ba0acc730?w=300&h=300', 
+                name: 'الغابة الخضراء',
+                id: 'green_forest'
+            },
+            { 
+                url: 'https://pfst.cf2.poecdn.net/base/image/493eb6110dc2ead37400c9d80f39ae00e3b9fad3a56be89afb3ba4f83b500a86?w=300&h=300', 
+                name: 'أشجار النخيل',
+                id: 'palm_trees'
+            },
+            { 
+                url: 'https://pfst.cf2.poecdn.net/base/image/515cff767426cf20c06b4a22d2ce7b7a36751dbdd1db9547c46724f4da77ea41?w=300&h=300', 
+                name: 'التقنية الحديثة',
+                id: 'modern_tech'
+            },
+            { 
+                url: 'https://pfst.cf2.poecdn.net/base/image/0442dd47b2e11bc67c4a2482f1c5ccdccb5f0e89baeae71502fc002b67fb3852?w=300&h=300', 
+                name: 'غابة الخيزران',
+                id: 'bamboo_forest'
+            },
+            { 
+                url: 'https://pfst.cf2.poecdn.net/base/image/e3d67c690e74d0995d7773f79f79bc9b5176f61548a0883787aad2633bcb273a?w=300&h=300', 
+                name: 'قمة الجبل',
+                id: 'mountain_peak'
+            },
+            { 
+                url: 'https://pfst.cf2.poecdn.net/base/image/fd3935a033a6d59d00f74288f71c873b48445096a085fa2b1b4b78503c483f4c?w=300&h=300', 
+                name: 'تحت الماء',
+                id: 'underwater'
+            },
+            { 
+                url: 'https://pfst.cf2.poecdn.net/base/image/d3cd7a40b6b07c63cb1f984d2ccb417016db003fd9cc0ecbd7eac1b6a007ca30?w=300&h=300', 
+                name: 'مغامر الجبال',
+                id: 'mountain_hiker'
+            }
+        ];
         // الصور المتاحة
         const availableImages = [
             { name: 'الجبال الثلجية', id: 'mountain_snow', emoji: '🏔️', color: '#3B82F6' },
