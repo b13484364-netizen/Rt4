@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق المحادثة الآمن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --c-bg: #f0ebe3;
+            --c-surface: #ffffff;
+            --c-surface-alt: #f7f4ef;
+            --c-text: #2c2420;
+            --c-text-secondary: #7a6e64;
+            --c-accent: #c0713a;
+            --c-accent-glow: rgba(192, 113, 58, 0.25);
+            --c-accent-light: #e8a76e;
+            --c-accent2: #3a7c6a;
+            --c-accent2-glow: rgba(58, 124, 106, 0.2);
+            --c-border: #e0d8ce;
+            --c-danger: #c44040;
+            --c-success: #3a7c3a;
+            --c-warning: #b89330;
+            --c-msg-mine: #c0713a;
+            --c-msg-mine-text: #ffffff;
+            --c-msg-other: #ffffff;
+            --c-msg-other-text: #2c2420;
+            --c-system-bg: rgba(192, 113, 58, 0.08);
+            --c-system-text: #c0713a;
+            --c-overlay: rgba(44, 36, 32, 0.55);
+            --c-input-bg: #ffffff;
+            --c-header-bg: rgba(255,255,255,0.92);
+            --radius: 14px;
+            --radius-lg: 20px;
+            --shadow-sm: 0 1px 3px rgba(44,36,32,0.06);
+            --shadow-md: 0 4px 20px rgba(44,36,32,0.08);
+            --shadow-lg: 0 8px 40px rgba(44,36,32,0.12);
+            --font-main: 'Readex Pro', 'Noto Kufi Arabic', sans-serif;
+        }
+
+        .dark {
+            --c-bg: #1a1614;
+            --c-surface: #252019;
+            --c-surface-alt: #2e2820;
+            --c-text: #ede6dc;
+            --c-text-secondary: #9e9085;
+            --c-accent: #e0934e;
+            --c-accent-glow: rgba(224, 147, 78, 0.2);
+            --c-accent-light: #f0b87a;
+            --c-accent2: #5aaa94;
+            --c-accent2-glow: rgba(90, 170, 148, 0.15);
+            --c-border: #3a332b;
+            --c-danger: #e06060;
+            --c-success: #5aaa5a;
+            --c-warning: #d4ad44;
+            --c-msg-mine: #c0713a;
+            --c-msg-mine-text: #ffffff;
+            --c-msg-other: #2e2820;
+            --c-msg-other-text: #ede6dc;
+            --c-system-bg: rgba(224, 147, 78, 0.1);
+            --c-system-text: #e0934e;
+            --c-overlay: rgba(0, 0, 0, 0.65);
+            --c-input-bg: #2e2820;
+            --c-header-bg: rgba(37,32,25,0.95);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.25);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.35);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--c-bg);
+            color: var(--c-text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--c-accent); }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.9); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes recordPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(196,64,64,0.4); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 8px rgba(196,64,64,0); }
+        }
+
+        .anim-slide-up {
+            animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+        }
+        .anim-fade { animation: fadeIn 0.3s ease forwards; }
+
+        /* ===== LOGIN SCREEN ===== */
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background:
+                radial-gradient(ellipse at 20% 50%, var(--c-accent-glow) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, var(--c-accent2-glow) 0%, transparent 50%),
+                var(--c-bg);
+        }
+
+        .login-card {
+            background: var(--c-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 1200px;
+            width: 100%;
+            padding: 36px;
+            border: 1px solid var(--c-border);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .login-header h1 {
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-weight: 800;
+            color: var(--c-text);
+            letter-spacing: -0.5px;
+        }
+        .login-header h1 .icon-lock {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;height: 42px;
+            background: linear-gradient(135deg, var(--c-accent), var(--c-accent-light));
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.1rem;
+            margin-inline-end: 10px;
+            vertical-align: middle;
+        }
+        .login-header p {
+            color: var(--c-text-secondary);
+            margin-top: 8px;
+            font-size: 0.95rem;
+        }
+        .login-badges {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--c-text-secondary);
+            background: var(--c-surface-alt);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--c-border);
+        }
+        .badge .dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .badge .dot.green { background: var(--c-success); animation: breathe 2s infinite; }
+        .badge .dot.blue { background: #4a90d9; }
+        .badge .dot.purple { background: var(--c-accent); }
+
+        /* Grid Layout */
+        .login-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 1024px) {
+            .login-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .login-grid { grid-template-columns: 1fr; }
+            .login-card { padding: 20px; }
+        }
+
+        .section-box {
+            background: var(--c-surface-alt);
+            border-radius: var(--radius);
+            padding: 22px;
+            border: 1px solid var(--c-border);
+        }
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--c-text);
+        }
+        .section-title i {
+            color: var(--c-accent);
+            font-size: 0.95rem;
+        }
+
+        /* Form elements */
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--c-text-secondary);
+            margin-bottom: 6px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--c-border);
+            border-radius: 10px;
+            background: var(--c-input-bg);
+            color: var(--c-text);
+            font-size: 16px;
+            font-family: var(--font-main);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .form-input:focus {
+            border-color: var(--c-accent);
+            box-shadow: 0 0 0 3px var(--c-accent-glow);
+        }
+        .form-input::placeholder { color: var(--c-text-secondary); opacity: 0.6; }
+
+        select.form-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6e64' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 14px center;
+            padding-left: 36px;
+        }
+
+        /* Duration buttons */
+        .duration-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .dur-btn {
+            padding: 9px 8px;
+            border: 1.5px solid var(--c-border);
+            border-radius: 9px;
+            background: var(--c-input-bg);
+            color: var(--c-text-secondary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-main);
+            text-align: center;
+        }
+        .dur-btn:hover { border-color: var(--c-accent); color: var(--c-accent); }
+        .dur-btn.active {
+            background: var(--c-accent);
+            color: #fff;
+            border-color: var(--c-accent);
+        }
+
+        .custom-dur-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .custom-dur-row input {
+            width: 70px;
+            padding: 8px 10px;
+        }
+        .custom-dur-row span { font-size: 0.78rem; color: var(--c-text-secondary); }
+
+        /* Checkbox */
+        .check-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--c-text-secondary);
+            cursor: pointer;
+            padding: 4px 0;
+        }
+        .check-row input[type="checkbox"] {
+            width: 18px; height: 18px;
+            accent-color: var(--c-accent);
+            cursor: pointer;
+        }
+
+        /* Image Gallery */
+        .img-gallery {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            max-height: 290px;
+            overflow-y: auto;
+            padding: 2px;
+        }
+        @media (max-width: 600px) {
+            .img-gallery { grid-template-columns: repeat(3, 1fr); }
+        }
+        .img-cell {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 2.5px solid transparent;
+            transition: border-color 0.2s, transform 0.2s;
+            background: var(--c-border);
+        }
+        .img-cell:hover { transform: scale(1.04); }
+        .img-cell.selected {
+            border-color: var(--c-accent);
+            box-shadow: 0 0 0 3px var(--c-accent-glow);
+        }
+        .img-cell img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .img-cell .img-num {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            background: rgba(0,0,0,0.55);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        .img-cell .img-name {
+            position: absolute;
+            bottom: 0;
+            left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 12px 5px 4px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .img-cell:hover .img-name, .img-cell.selected .img-name { opacity: 1; }
+        .img-cell .img-placeholder {
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--c-surface-alt), var(--c-border));
+            font-size: 1.6rem;
+        }
+        .img-cell .img-placeholder span {
+            font-size: 0.6rem;
+            color: var(--c-text-secondary);
+            margin-top: 2px;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed var(--c-border);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--c-accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-main);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .upload-btn:hover {
+            border-color: var(--c-accent);
+            background: var(--c-accent-glow);
+        }
+
+        /* Enter button */
+        .enter-btn {
+            width: 100%;
+            padding: 16px 20px;
+            border: none;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--c-accent), var(--c-accent-light));
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: var(--font-main);
+            box-shadow: 0 4px 16px var(--c-accent-glow);
+        }
+        .enter-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px var(--c-accent-glow);
+        }
+        .enter-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .tip-box {
+            margin-top: 14px;
+            padding: 12px;
+            background: rgba(58, 124, 106, 0.08);
+            border: 1px solid rgba(58, 124, 106, 0.2);
+            border-radius: 10px;
+            font-size: 0.78rem;
+            color: var(--c-accent2);
+        }
+
+        .preview-box {
+            margin-top: 14px;
+            padding: 14px;
+            background: var(--c-surface);
+            border: 1px solid var(--c-border);
+            border-radius: 10px;
+        }
+        .preview-box h4 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--c-accent);
+            margin-bottom: 10px;
+        }
+        .preview-row {
+            font-size: 0.75rem;
+            color: var(--c-text-secondary);
+            padding: 3px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ===== CHAT SCREEN ===== */
+        .chat-wrapper {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--c-bg);
+        }
+        .chat-wrapper.active { display: flex; }
+
+        /* Chat Header */
+        .chat-header {
+            background: var(--c-header-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--c-border);
+            padding: 12px 16px;
+            z-index: 20;
+        }
+        .header-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+        .room-avatar {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--c-accent);
+            flex-shrink: 0;
+        }
+        .room-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .room-meta h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .room-meta h2 .live-dot {
+            width: 7px; height: 7px;
+            background: var(--c-success);
+            border-radius: 50%;
+            animation: breathe 2s infinite;
+        }
+        .room-stats {
+            display: flex;
+            gap: 10px;
+            font-size: 0.73rem;
+            color: var(--c-text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .timer-box {
+            text-align: center;
+            background: var(--c-surface-alt);
+            border: 1px solid var(--c-border);
+            border-radius: 10px;
+            padding: 6px 14px;
+        }
+        .timer-value {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--c-accent);
+            font-variant-numeric: tabular-nums;
+        }
+        .timer-value.warning { color: var(--c-warning); }
+        .timer-value.danger { color: var(--c-danger); animation: breathe 1s infinite; }
+        .timer-label { font-size: 0.6rem; color: var(--c-text-secondary); }
+
+        .hdr-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 9px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-main);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .hdr-btn.share { background: rgba(74,144,217,0.1); color: #4a90d9; }
+        .hdr-btn.share:hover { background: rgba(74,144,217,0.2); }
+        .hdr-btn.leave { background: rgba(196,64,64,0.1); color: var(--c-danger); }
+        .hdr-btn.leave:hover { background: rgba(196,64,64,0.2); }
+
+        @media (max-width: 600px) {
+            .hdr-btn span.btn-text { display: none; }
+            .timer-box { padding: 4px 10px; }
+            .timer-value { font-size: 1rem; }
+        }
+
+        /* Messages area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .welcome-msg {
+            text-align: center;
+            padding: 48px 16px;
+            animation: fadeIn 0.5s ease;
+        }
+        .welcome-msg .icon { font-size: 3rem; margin-bottom: 12px; }
+        .welcome-msg h3 { font-size: 1.1rem; font-weight: 700; color: var(--c-text); }
+        .welcome-msg p { font-size: 0.85rem; color: var(--c-text-secondary); margin-top: 6px; }
+
+        .msg-bubble {
+            margin-bottom: 10px;
+            animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+        }
+        .msg-row { display: flex; }
+        .msg-row.mine { justify-content: flex-end; }
+        .msg-row.other { justify-content: flex-start; }
+        .msg-row.system { justify-content: center; }
+
+        .msg-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+        @media (max-width: 600px) {
+            .msg-content { max-width: 88%; }
+        }
+        .msg-row.mine .msg-content {
+            background: var(--c-msg-mine);
+            color: var(--c-msg-mine-text);
+            border-bottom-left: 4px;
+        }
+        .msg-row.other .msg-content {
+            background: var(--c-msg-other);
+            color: var(--c-msg-other-text);
+            border: 1px solid var(--c-border);
+            border-bottom-right: 4px;
+        }
+        .msg-row.system .msg-content {
+            background: var(--c-system-bg);
+            color: var(--c-system-text);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 20px;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .msg-sender {
+            font-size: 0.72rem;
+            font-weight: 700;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        .msg-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+        .msg-time {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            margin-top: 5px;
+            text-align: left;
+        }
+        .msg-img {
+            max-width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 4px;
+        }
+        .msg-img:hover { transform: scale(1.02); }
+
+        .voice-msg {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 10px;
+            margin-bottom: 4px;
+        }
+        .msg-row.other .voice-msg { background: var(--c-surface-alt); }
+        .voice-play-btn {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.25);
+            color: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .msg-row.other .voice-play-btn { background: var(--c-accent); color: #fff; }
+        .voice-play-btn:hover { transform: scale(1.1); }
+        .voice-info { font-size: 0.78rem; }
+        .voice-info .voice-label { font-weight: 600; }
+        .voice-info .voice-dur { font-size: 0.7rem; opacity: 0.7; }
+
+        /* Input area */
+        .input-area {
+            background: var(--c-surface);
+            border-top: 1px solid var(--c-border);
+            padding: 12px 16px;
+        }
+        .input-inner {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Recording panel */
+        .rec-panel {
+            display: none;
+            padding: 14px;
+            background: rgba(196, 64, 64, 0.06);
+            border: 1px solid rgba(196, 64, 64, 0.15);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+        }
+        .rec-panel.active { display: block; }
+        .rec-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .rec-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .rec-dot {
+            width: 12px; height: 12px;
+            background: var(--c-danger);
+            border-radius: 50%;
+            animation: recordPulse 1s infinite;
+        }
+        .rec-label { font-size: 0.85rem; font-weight: 600; color: var(--c-danger); }
+        .rec-timer { font-size: 0.9rem; font-weight: 700; color: var(--c-danger); font-variant-numeric: tabular-nums; }
+        .rec-actions { display: flex; gap: 8px; }
+        .rec-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-main);
+            transition: all 0.2s;
+        }
+        .rec-btn.stop { background: var(--c-danger); color: #fff; }
+        .rec-btn.cancel { background: var(--c-surface-alt); color: var(--c-text-secondary); }
+        .rec-waveform {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 10px;
+            background: linear-gradient(90deg,
+                var(--c-danger) 0%, var(--c-danger) 15%, transparent 15%, transparent 30%,
+                var(--c-danger) 30%, var(--c-danger) 45%, transparent 45%, transparent 60%,
+                var(--c-danger) 60%, var(--c-danger) 75%, transparent 75%, transparent 90%,
+                var(--c-danger) 90%);
+            background-size: 24px 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+
+        .compose-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+        .compose-field {
+            flex: 1;
+            position: relative;
+        }
+        .compose-field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            padding-left: 50px;
+            border: 1.5px solid var(--c-border);
+            border-radius: 14px;
+            background: var(--c-input-bg);
+            color: var(--c-text);
+            font-size: 16px;
+            font-family: var(--font-main);
+            resize: none;
+            outline: none;
+            max-height: 120px;
+            line-height: 1.5;
+            transition: border-color 0.2s;
+        }
+        .compose-field textarea:focus {
+            border-color: var(--c-accent);
+        }
+        .compose-field textarea::placeholder { color: var(--c-text-secondary); opacity: 0.5; }
+        .char-counter {
+            position: absolute;
+            bottom: 6px;
+            left: 10px;
+            font-size: 0.65rem;
+            color: var(--c-text-secondary);
+        }
+        .char-counter.warn { color: var(--c-warning); }
+        .char-counter.over { color: var(--c-danger); }
+
+        .action-btns { display: flex; flex-direction: column; gap: 6px; }
+        .action-btn {
+            width: 42px; height: 42px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .action-btn.voice { background: rgba(58,124,58,0.1); color: var(--c-success); }
+        .action-btn.voice:hover { background: rgba(58,124,58,0.2); }
+        .action-btn.image { background: rgba(74,144,217,0.1); color: #4a90d9; }
+        .action-btn.image:hover { background: rgba(74,144,217,0.2); }
+        .action-btn.send { background: var(--c-accent); color: #fff; }
+        .action-btn.send:hover { background: var(--c-accent-light); transform: scale(1.05); }
+
+        /* ===== EXPIRED SCREEN ===== */
+        .expired-wrapper {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #c44040, #a03030);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .expired-wrapper.active { display: flex; }
+        .expired-card {
+            background: var(--c-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 420px;
+            width: 100%;
+            padding: 40px 32px;
+            text-align: center;
+        }
+        .expired-card .icon { font-size: 3.5rem; margin-bottom: 16px; }
+        .expired-card h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 12px; }
+        .expired-card p { color: var(--c-text-secondary); font-size: 0.9rem; margin-bottom: 24px; line-height: 1.6; }
+        .new-session-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--c-accent);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: var(--font-main);
+            transition: all 0.2s;
+        }
+        .new-session-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px var(--c-accent-glow); }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--c-overlay);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: var(--c-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 400px;
+            width: 100%;
+            padding: 28px;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+        .modal-box .modal-icon { font-size: 2.8rem; margin-bottom: 12px; }
+        .modal-box h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+        .modal-box p { color: var(--c-text-secondary); font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5; }
+        .modal-btns { display: flex; gap: 10px; justify-content: center; }
+        .modal-btn {
+            padding: 10px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-main);
+            transition: all 0.2s;
+        }
+        .modal-btn.primary { background: var(--c-accent); color: #fff; }
+        .modal-btn.primary:hover { background: var(--c-accent-light); }
+        .modal-btn.danger { background: var(--c-danger); color: #fff; }
+        .modal-btn.danger:hover { opacity: 0.85; }
+        .modal-btn.ghost { background: var(--c-surface-alt); color: var(--c-text-secondary); }
+        .modal-btn.ghost:hover { background: var(--c-border); }
+
+        /* Image modal */
+        .img-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            cursor: zoom-out;
+        }
+        .img-modal-overlay.active { display: flex; }
+        .img-modal-overlay img {
+            max-width: 95%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .img-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .img-modal-close:hover { background: rgba(255,255,255,0.3); }
+
+        /* Connection notice */
+        .conn-notice {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+        .conn-notice.info {
+            background: rgba(74,144,217,0.08);
+            border: 1px solid rgba(74,144,217,0.2);
+            color: #4a90d9;
+        }
+        .conn-notice .conn-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .conn-notice strong { font-weight: 700; }
+        .conn-notice p { font-size: 0.78rem; margin-top: 3px; opacity: 0.85; }
+
+        /* Notification toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 300;
+            box-shadow: var(--shadow-md);
+            animation: slideUp 0.3s ease;
+            font-family: var(--font-main);
+        }
+        .toast.success { background: var(--c-success); }
+        .toast.error { background: var(--c-danger); }
+        .toast.info { background: #4a90d9; }
+
+        /* Hidden */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== LOGIN SCREEN ===== -->
+    <div id="loginScreen" class="login-wrapper">
+        <div class="login-card">
+            <div class="conn-notice info">
+                <div class="conn-icon"><i class="fas fa-wifi"></i></div>
+                <div>
+                    <strong>وضع المحادثة المحلية</strong>
+                    <p>يعمل التطبيق بدون خوادم خارجية — المحادثات محلية وآمنة على جهازك</p>
+                </div>
+            </div>
+
+            <div class="login-header">
+                <h1>
+                    <span class="icon-lock"><i class="fas fa-lock"></i></span>
+                    تطبيق المحادثة الآمن
+                </h1>
+                <p>اختر نفس الصورة وكلمة المرور للانضمام لنفس الغرفة</p>
+                <div class="login-badges">
+                    <span class="badge"><span class="dot green"></span> محادثة مباشرة</span>
+                    <span class="badge"><span class="dot blue"></span> رسائل صوتية</span>
+                    <span class="badge"><span class="dot purple"></span> توقيت تلقائي</span>
+                </div>
+            </div>
+
+            <div class="login-grid">
+                <!-- User Info -->
+                <div class="section-box">
+                    <div class="section-title"><i class="fas fa-user"></i> معلومات المستخدم</div>
+                    <div style="margin-bottom:14px;">
+                        <label class="form-label">اسم المستخدم:</label>
+                        <input type="text" id="usernameInput" class="form-input" placeholder="أدخل اسمك" maxlength="30">
+                    </div>
+                    <div>
+                        <label class="form-label">كلمة المرور:</label>
+                        <input type="password" id="passwordInput" class="form-input" placeholder="كلمة مرور قوية">
+                    </div>
+                </div>
+
+                <!-- Room Settings -->
+                <div class="section-box">
+                    <div class="section-title"><i class="fas fa-cog"></i> إعدادات الغرفة</div>
+                    <div style="margin-bottom:14px;">
+                        <label class="form-label">الحد الأقصى للمستخدمين:</label>
+                        <select id="maxUsersSelect" class="form-input">
+                            <option value="2">شخصان</option>
+                            <option value="3">3 أشخاص</option>
+                            <option value="5" selected>5 أشخاص</option>
+                            <option value="10">10 أشخاص</option>
+                            <option value="20">20 شخص</option>
+                            <option value="50">50 شخص</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label class="form-label">مدة الجلسة:</label>
+                        <div class="duration-grid">
+                            <button type="button" class="dur-btn active" data-duration="5">5 دقائق</button>
+                            <button type="button" class="dur-btn" data-duration="10">10 دقائق</button>
+                            <button type="button" class="dur-btn" data-duration="15">15 دقيقة</button>
+                            <button type="button" class="dur-btn" data-duration="30">30 دقيقة</button>
+                        </div>
+                        <div class="custom-dur-row">
+                            <input type="number" id="customDuration" class="form-input" min="1" max="120" placeholder="60">
+                            <span>دقيقة مخصصة</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">الميزات:</label>
+                        <label class="check-row">
+                            <input type="checkbox" id="allowVoiceMessages" checked>
+                            <span><i class="fas fa-microphone"></i> الرسائل الصوتية</span>
+                        </label>
+                        <label class="check-row">
+                            <input type="checkbox" id="allowImages" checked>
+                            <span><i class="fas fa-camera"></i> الصور</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Image Gallery -->
+                <div class="section-box">
+                    <div class="section-title"><i class="fas fa-mountain-sun"></i> اختر منظر طبيعي</div>
+                    <div id="imageGallery" class="img-gallery"></div>
+                    <button type="button" id="uploadImageBtn" class="upload-btn">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>رفع صورة مخصصة</span>
+                    </button>
+                    <input type="file" id="customImageInput" accept="image/*" class="hidden">
+                </div>
+
+                <!-- Enter & Preview -->
+                <div>
+                    <div class="section-box">
+                        <button id="enterRoomBtn" class="enter-btn" disabled>
+                            <span id="enterBtnText"><i class="fas fa-exclamation-triangle"></i> يرجى إكمال البيانات</span>
+                        </button>
+                        <div class="tip-box">
+                            <i class="fas fa-lightbulb"></i> <strong>نصيحة:</strong> شارك نفس الصورة وكلمة المرور مع أصدقائك
+                        </div>
+                    </div>
+
+                    <div class="preview-box">
+                        <h4><i class="fas fa-eye"></i> معاينة الغرفة</h4>
+                        <div class="preview-row" id="previewImage"><i class="fas fa-image"></i> الصورة: لم تُختر بعد</div>
+                        <div class="preview-row" id="previewDuration"><i class="fas fa-clock"></i> المدة: 5 دقائق</div>
+                        <div class="preview-row" id="previewMaxUsers"><i class="fas fa-users"></i> الحد الأقصى: 5 أشخاص</div>
+                        <div class="preview-row" id="previewUsername"><i class="fas fa-user"></i> المستخدم: غير محدد</div>
+                        <div class="preview-row" id="previewFeatures"><i class="fas fa-star"></i> الميزات: صوت، صور</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CHAT SCREEN ===== -->
+    <div id="chatScreen" class="chat-wrapper">
+        <div class="chat-header">
+            <div class="header-inner">
+                <div class="header-info">
+                    <div class="room-avatar" id="roomAvatar"></div>
+                    <div class="room-meta">
+                        <h2>
+                            <i class="fas fa-lock" style="color:var(--c-accent);font-size:0.8rem;"></i>
+                            غرفة المحادثة
+                            <span class="live-dot"></span>
+                        </h2>
+                        <div class="room-stats">
+                            <span id="roomStatusName">متصل</span>
+                            <span id="userCountDisplay">• 1 مستخدم</span>
+                            <span id="maxUsersLabelDisplay">من 5</span>
+                            <span id="messageCountDisplay">• 0 رسالة</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="timer-box">
+                        <div id="timeRemaining" class="timer-value">00:00</div>
+                        <div class="timer-label">الوقت المتبقي</div>
+                        <div id="totalTimeLabel" class="timer-label"></div>
+                    </div>
+                    <button id="shareRoomBtn" class="hdr-btn share"><i class="fas fa-share-alt"></i> <span class="btn-text">مشاركة</span></button>
+                    <button id="leaveRoomBtn" class="hdr-btn leave"><i class="fas fa-sign-out-alt"></i> <span class="btn-text">مغادرة</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="messagesContainer" class="messages-area">
+            <div class="welcome-msg">
+                <div class="icon">🎉</div>
+                <h3>مرحباً بك في الغرفة!</h3>
+                <p>ابدأ المحادثة الآن...</p>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-inner">
+                <div id="voiceRecordingPanel" class="rec-panel">
+                    <div class="rec-row">
+                        <div class="rec-info">
+                            <div class="rec-dot"></div>
+                            <span class="rec-label"><i class="fas fa-microphone"></i> جاري التسجيل...</span>
+                            <span id="recordingTimer" class="rec-timer">00:00</span>
+                        </div>
+                        <div class="rec-actions">
+                            <button id="stopRecordingBtn" class="rec-btn stop"><i class="fas fa-stop"></i> إيقاف</button>
+                            <button id="cancelRecordingBtn" class="rec-btn cancel"><i class="fas fa-times"></i> إلغاء</button>
+                        </div>
+                    </div>
+                    <div class="rec-waveform"></div>
+                </div>
+
+                <div class="compose-row">
+                    <div class="compose-field">
+                        <textarea id="messageInput" rows="1" placeholder="اكتب رسالتك هنا... (Enter للإرسال)"></textarea>
+                        <div id="charCount" class="char-counter">0/500</div>
+                    </div>
+                    <div class="action-btns">
+                        <button id="voiceRecordBtn" class="action-btn voice" title="تسجيل رسالة صوتية"><i class="fas fa-microphone"></i></button>
+                        <button id="sendImageBtn" class="action-btn image" title="إرسال صورة"><i class="fas fa-camera"></i></button>
+                        <button id="sendMessageBtn" class="action-btn send" title="إرسال"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                <input type="file" id="imageMessageInput" accept="image/*" class="hidden">
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== EXPIRED SCREEN ===== -->
+    <div id="expiredScreen" class="expired-wrapper">
+        <div class="expired-card">
+            <div class="icon">⏰</div>
+            <h1>انتهت الجلسة!</h1>
+            <p>انتهت مدة الجلسة المحددة وتم مسح المحادثة تلقائياً. يمكنك إنشاء جلسة جديدة الآن.</p>
+            <button id="newSessionBtn" class="new-session-btn"><i class="fas fa-rocket"></i> إنشاء جلسة جديدة</button>
+        </div>
+    </div>
+
+    <!-- ===== ROOM FULL MODAL ===== -->
+    <div id="roomFullModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon">🚫</div>
+            <h3>الغرفة ممتلئة!</h3>
+            <p>وصلت الغرفة للحد الأقصى من المستخدمين. جرب لاحقاً أو أنشئ غرفة جديدة.</p>
+            <div class="modal-btns">
+                <button class="modal-btn primary" onclick="this.closest('.modal-overlay').classList.remove('active')">
+                    <i class="fas fa-arrow-right"></i> العودة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONFIRM MODAL ===== -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon">❓</div>
+            <h3 id="confirmTitle">تأكيد</h3>
+            <p id="confirmMessage"></p>
+            <div class="modal-btns">
+                <button id="confirmCancel" class="modal-btn ghost">إلغاء</button>
+                <button id="confirmOk" class="modal-btn danger">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ALERT MODAL ===== -->
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon">⚠️</div>
+            <h3>تنبيه</h3>
+            <p id="alertMessage"></p>
+            <div class="modal-btns">
+                <button class="modal-btn primary" onclick="document.getElementById('alertModal').classList.remove('active')">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== IMAGE PREVIEW MODAL ===== -->
+    <div id="imagePreviewModal" class="img-modal-overlay">
+        <img id="imagePreviewImg" src="" alt="صورة مكبرة">
+        <button class="img-modal-close" onclick="document.getElementById('imagePreviewModal').classList.remove('active')">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+<script>
+    /* ==============================================================
+       DARK MODE DETECTION
+    ============================================================== */
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(event) {
+        if (event.matches) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    });
+
+    /* ==============================================================
+       IMAGE DATA - 24 images from GitHub repo
+    ============================================================== */
+    var BASE_URL = 'https://b13484364-netizen.github.io/Rt4/images/';
+
+    var availableImages = [
+        { name: 'جبال الثلج', id: 'img1', emoji: '🏔️', url: BASE_URL + 'image1.jpg' },
+        { name: 'الغابة المطيرة', id: 'img2', emoji: '🌲', url: BASE_URL + 'image2.jpg' },
+        { name: 'شاطئ استوائي', id: 'img3', emoji: '🏖️', url: BASE_URL + 'image3.jpg' },
+        { name: 'بحيرة جبلية', id: 'img4', emoji: '🏞️', url: BASE_URL + 'image4.jpg' },
+        { name: 'شروق الشمس', id: 'img5', emoji: '🌅', url: BASE_URL + 'image5.jpg' },
+        { name: 'صحراء ذهبية', id: 'img6', emoji: '🏜️', url: BASE_URL + 'image6.jpg' },
+        { name: 'شلال مداري', id: 'img7', emoji: '💧', url: BASE_URL + 'image7.jpg' },
+        { name: 'أضواء شمالية', id: 'img8', emoji: '🌌', url: BASE_URL + 'image8.jpg' },
+        { name: 'غروب البحر', id: 'img9', emoji: '🌊', url: BASE_URL + 'image9.jpg' },
+        { name: 'بركان نشط', id: 'img10', emoji: '🌋', url: BASE_URL + 'image10.jpg' },
+        { name: 'كهف جليدي', id: 'img11', emoji: '❄️', url: BASE_URL + 'image11.jpg' },
+        { name: 'جسر طبيعي', id: 'img12', emoji: '🌉', url: BASE_URL + 'image12.jpg' },
+        { name: 'وادي أخضر', id: 'img13', emoji: '🌿', url: BASE_URL + 'image13.jpg' },
+        { name: 'حقل زهور', id: 'img14', emoji: '🌸', url: BASE_URL + 'image14.jpg' },
+        { name: 'قمة سحابية', id: 'img15', emoji: '☁️', url: BASE_URL + 'image15.jpg' },
+        { name: 'نهر جبلي', id: 'img16', emoji: '🏔️', url: BASE_URL + 'image16.jpg' },
+        { name: 'غابة الخريف', id: 'img17', emoji: '🍂', url: BASE_URL + 'image17.jpg' },
+        { name: 'بحيرة مرآة', id: 'img18', emoji: '🪞', url: BASE_URL + 'image18.jpg' },
+        { name: 'كثبان رملية', id: 'img19', emoji: '🐪', url: BASE_URL + 'image19.jpg' },
+        { name: 'شفق قطبي', id: 'img20', emoji: '✨', url: BASE_URL + 'image20.jpg' },
+        { name: 'جزيرة نائية', id: 'img21', emoji: '🏝️', url: BASE_URL + 'image21.jpg' },
+        { name: 'قوس قزح', id: 'img22', emoji: '🌈', url: BASE_URL + 'image22.jpg' },
+        { name: 'ليل مرصّع', id: 'img23', emoji: '🌠', url: BASE_URL + 'image23.jpg' },
+        { name: 'واحة صحراوية', id: 'img24', emoji: '🌴', url: BASE_URL + 'image24.jpg' }
+    ];
+
+    /* ==============================================================
+       APP STATE
+    ============================================================== */
+    var selectedImage = null;
+    var selectedDuration = 5;
+    var currentRoom = null;
+    var currentUser = null;
+    var maxUsers = 5;
+    var allowVoice = true;
+    var allowImgs = true;
+    var sessionStartTime = null;
+    var sessionDuration = 5 * 60 * 1000;
+    var countdownInterval = null;
+    var messages = [];
+    var msgCounter = 0;
+
+    // Voice recording state
+    var mediaRecorder = null;
+    var audioChunks = [];
+    var isRecording = false;
+    var recordingTimerInterval = null;
+    var recordingStartTime = 0;
+
+    /* ==============================================================
+       DOM ELEMENTS
+    ============================================================== */
+    var els = {};
+
+    function initDOM() {
+        var ids = [
+            'loginScreen', 'chatScreen', 'expiredScreen',
+            'imageGallery', 'usernameInput', 'passwordInput',
+            'customDuration', 'enterRoomBtn', 'enterBtnText',
+            'uploadImageBtn', 'customImageInput',
+            'maxUsersSelect', 'allowVoiceMessages', 'allowImages',
+            'roomAvatar', 'messagesContainer', 'messageInput',
+            'sendMessageBtn', 'sendImageBtn', 'imageMessageInput',
+            'charCount', 'roomStatusName', 'userCountDisplay',
+            'maxUsersLabelDisplay', 'messageCountDisplay',
+            'shareRoomBtn', 'leaveRoomBtn',
+            'voiceRecordBtn', 'voiceRecordingPanel', 'stopRecordingBtn',
+            'cancelRecordingBtn', 'recordingTimer',
+            'roomFullModal', 'newSessionBtn',
+            'timeRemaining', 'totalTimeLabel',
+            'previewImage', 'previewDuration', 'previewMaxUsers',
+            'previewUsername', 'previewFeatures',
+            'confirmModal', 'confirmTitle', 'confirmMessage',
+            'confirmCancel', 'confirmOk',
+            'alertModal', 'alertMessage',
+            'imagePreviewModal', 'imagePreviewImg'
+        ];
+        ids.forEach(function(id) {
+            els[id] = document.getElementById(id);
+        });
+    }
+
+    /* ==============================================================
+       UTILITIES
+    ============================================================== */
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showAlertModal(msg) {
+        els.alertMessage.textContent = msg;
+        els.alertModal.classList.add('active');
+    }
+
+    function showConfirmModal(msg, onConfirm) {
+        els.confirmMessage.textContent = msg;
+        els.confirmModal.classList.add('active');
+
+        var okHandler = function() {
+            els.confirmModal.classList.remove('active');
+            els.confirmOk.removeEventListener('click', okHandler);
+            els.confirmCancel.removeEventListener('click', cancelHandler);
+            onConfirm();
+        };
+        var cancelHandler = function() {
+            els.confirmModal.classList.remove('active');
+            els.confirmOk.removeEventListener('click', okHandler);
+            els.confirmCancel.removeEventListener('click', cancelHandler);
+        };
+
+        els.confirmOk.addEventListener('click', okHandler);
+        els.confirmCancel.addEventListener('click', cancelHandler);
+    }
+
+    function showToast(msg, type) {
+        var toast = document.createElement('div');
+        toast.className = 'toast ' + (type || 'info');
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(function() { toast.remove(); }, 3000);
+    }
+
+    function generateRoomKey(image, password) {
+        var combined = image.id + '_' + password;
+        var hash = 0;
+        for (var i = 0; i < combined.length; i++) {
+            var ch = combined.charCodeAt(i);
+            hash = ((hash << 5) - hash) + ch;
+            hash = hash & hash;
+        }
+        return Math.abs(hash).toString(36);
+    }
+
+    /* ==============================================================
+       PREVIEW UPDATE
+    ============================================================== */
+    function updatePreview() {
+        if (els.previewImage) {
+            els.previewImage.innerHTML = selectedImage
+                ? '<i class="fas fa-image"></i> الصورة: ' + selectedImage.emoji + ' ' + selectedImage.name
+                : '<i class="fas fa-image"></i> الصورة: لم تُختر بعد';
+        }
+        if (els.previewDuration) {
+            els.previewDuration.innerHTML = '<i class="fas fa-clock"></i> المدة: ' + selectedDuration + ' دقيقة';
+        }
+        if (els.previewMaxUsers) {
+            var label = maxUsers === 2 ? 'شخصان' : maxUsers + ' أشخاص';
+            els.previewMaxUsers.innerHTML = '<i class="fas fa-users"></i> الحد الأقصى: ' + label;
+        }
+        if (els.previewUsername) {
+            var name = els.usernameInput.value.trim();
+            els.previewUsername.innerHTML = name
+                ? '<i class="fas fa-user"></i> المستخدم: ' + escapeHtml(name)
+                : '<i class="fas fa-user"></i> المستخدم: غير محدد';
+        }
+        if (els.previewFeatures) {
+            var feats = [];
+            if (allowVoice) feats.push('صوت');
+            if (allowImgs) feats.push('صور');
+            els.previewFeatures.innerHTML = '<i class="fas fa-star"></i> الميزات: ' + (feats.join('، ') || 'نص فقط');
+        }
+    }
+
+    /* ==============================================================
+       ENTER BUTTON STATE
+    ============================================================== */
+    function updateEnterButton() {
+        var hasImage = selectedImage !== null;
+        var hasUser = els.usernameInput.value.trim().length > 0;
+        var hasPass = els.passwordInput.value.trim().length > 0;
+
+        els.enterRoomBtn.disabled = !(hasImage && hasUser && hasPass);
+
+        if (hasImage && hasUser && hasPass) {
+            els.enterBtnText.innerHTML = '<i class="fas fa-comments"></i> دخول الغرفة';
+        } else if (!hasImage) {
+            els.enterBtnText.innerHTML = '<i class="fas fa-image"></i> اختر منظر طبيعي';
+        } else if (!hasUser) {
+            els.enterBtnText.innerHTML = '<i class="fas fa-user"></i> أدخل اسم المستخدم';
+        } else {
+            els.enterBtnText.innerHTML = '<i class="fas fa-lock"></i> أدخل كلمة المرور';
+        }
+    }
+
+    /* ==============================================================
+       IMAGE GALLERY
+    ============================================================== */
+    function loadImageGallery() {
+        var gallery = els.imageGallery;
+        if (!gallery) return;
+        gallery.innerHTML = '';
+
+        availableImages.forEach(function(image, idx) {
+            var cell = document.createElement('div');
+            cell.className = 'img-cell';
+            cell.innerHTML =
+                '<img src="' + image.url + '" alt="' + image.name + '" ' +
+                'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+                '<div class="img-placeholder" style="display:none">' +
+                    '<span style="font-size:1.6rem">' + image.emoji + '</span>' +
+                    '<span>' + image.name + '</span>' +
+                '</div>' +
+                '<div class="img-num">' + (idx + 1) + '</div>' +
+                '<div class="img-name">' + image.emoji + ' ' + image.name + '</div>';
+
+            cell.addEventListener('click', function() { selectImage(image, cell); });
+            gallery.appendChild(cell);
+        });
+    }
+
+    function selectImage(image, element) {
+        var prev = els.imageGallery.querySelector('.selected');
+        if (prev) prev.classList.remove('selected');
+        element.classList.add('selected');
+        selectedImage = image;
+        updateEnterButton();
+        updatePreview();
+    }
+
+    /* ==============================================================
+       DURATION SETUP
+    ============================================================== */
+    function setupDurationButtons() {
+        var btns = document.querySelectorAll('.dur-btn');
+        btns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                btns.forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                selectedDuration = parseInt(btn.getAttribute('data-duration'));
+                if (els.customDuration) els.customDuration.value = '';
+                updatePreview();
+            });
+        });
+
+        if (els.customDuration) {
+            els.customDuration.addEventListener('input', function() {
+                if (els.customDuration.value) {
+                    selectedDuration = Math.min(120, Math.max(1, parseInt(els.customDuration.value) || 5));
+                    btns.forEach(function(b) { b.classList.remove('active'); });
+                }
+                updatePreview();
+            });
+        }
+    }
+
+    /* ==============================================================
+       ROOM MANAGEMENT (Local/In-Memory)
+    ============================================================== */
+    function enterRoom() {
+        if (!selectedImage || !els.usernameInput.value.trim() || !els.passwordInput.value.trim()) {
+            showAlertModal('يرجى إكمال جميع البيانات');
+            return;
+        }
+
+        var roomKey = generateRoomKey(selectedImage, els.passwordInput.value.trim());
+        currentRoom = roomKey;
+        currentUser = {
+            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            username: els.usernameInput.value.trim(),
+            joinTime: Date.now(),
+            lastSeen: Date.now()
+        };
+
+        sessionDuration = selectedDuration * 60 * 1000;
+        sessionStartTime = Date.now();
+        messages = [];
+        msgCounter = 0;
+
+        // Switch screens
+        els.loginScreen.style.display = 'none';
+        els.chatScreen.classList.add('active');
+
+        // Setup header
+        if (els.roomAvatar) {
+            els.roomAvatar.innerHTML = '<img src="' + selectedImage.url + '" alt="' + selectedImage.name + '"' +
+                ' onerror="this.outerHTML=\'<div style=&quot;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--c-surface-alt);font-size:1.4rem&quot;>' + selectedImage.emoji + '</div>\'">';
+        }
+        if (els.roomStatusName) els.roomStatusName.textContent = currentUser.username;
+        if (els.maxUsersLabelDisplay) els.maxUsersLabelDisplay.textContent = 'من ' + maxUsers;
+        if (els.totalTimeLabel) els.totalTimeLabel.textContent = 'المدة: ' + selectedDuration + ' دقيقة';
+
+        // Hide buttons based on settings
+        if (!allowVoice && els.voiceRecordBtn) els.voiceRecordBtn.style.display = 'none';
+        else if (els.voiceRecordBtn) els.voiceRecordBtn.style.display = '';
+        if (!allowImgs && els.sendImageBtn) els.sendImageBtn.style.display = 'none';
+        else if (els.sendImageBtn) els.sendImageBtn.style.display = '';
+
+        // Start countdown
+        startCountdown();
+
+        // Add join message
+        addSystemMessage(currentUser.username + ' انضم للجلسة 👋');
+
+        // Focus
+        if (els.messageInput) els.messageInput.focus();
+    }
+
+    function addSystemMessage(text) {
+        var msg = {
+            id: 'msg_' + (++msgCounter),
+            text: text,
+            timestamp: Date.now(),
+            type: 'system',
+            username: 'النظام',
+            userId: 'system'
+        };
+        messages.push(msg);
+        displayMessage(msg);
+        updateMsgCount();
+    }
+
+    /* ==============================================================
+       COUNTDOWN
+    ============================================================== */
+    function startCountdown() {
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        countdownInterval = setInterval(function() {
+            var now = Date.now();
+            var remaining = sessionDuration - (now - sessionStartTime);
+
+            if (remaining <= 0) {
+                clearInterval(countdownInterval);
+                endSession();
+                return;
+            }
+
+            var min = Math.floor(remaining / 60000);
+            var sec = Math.floor((remaining % 60000) / 1000);
+            var display = min + ':' + (sec < 10 ? '0' : '') + sec;
+
+            if (els.timeRemaining) {
+                els.timeRemaining.textContent = display;
+                els.timeRemaining.className = 'timer-value';
+                if (remaining < 60000) {
+                    els.timeRemaining.classList.add('danger');
+                } else if (remaining < 300000) {
+                    els.timeRemaining.classList.add('warning');
+                }
+            }
+        }, 1000);
+    }
+
+    function endSession() {
+        messages = [];
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        els.chatScreen.classList.remove('active');
+        els.expiredScreen.classList.add('active');
+
+        currentRoom = null;
+        currentUser = null;
+        sessionStartTime = null;
+    }
+
+    /* ==============================================================
+       DISPLAY MESSAGE
+    ============================================================== */
+    function displayMessage(msg) {
+        var container = els.messagesContainer;
+        if (!container) return;
+
+        // Remove welcome message
+        var welcome = container.querySelector('.welcome-msg');
+        if (welcome) welcome.remove();
+
+        var div = document.createElement('div');
+        div.className = 'msg-bubble';
+
+        var timeStr = new Date(msg.timestamp).toLocaleTimeString('ar-SA', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        if (msg.type === 'system') {
+            div.innerHTML =
+                '<div class="msg-row system">' +
+                    '<div class="msg-content">' + escapeHtml(msg.text) + '</div>' +
+                '</div>';
+        } else {
+            var isMine = msg.userId === currentUser.id;
+            var rowClass = isMine ? 'mine' : 'other';
+            var contentBody = '';
+
+            if (msg.type === 'image') {
+                contentBody = '<img class="msg-img" src="' + msg.imageUrl + '" alt="صورة" data-src="' + msg.imageUrl + '">';
+            } else if (msg.type === 'voice') {
+                contentBody =
+                    '<div class="voice-msg">' +
+                        '<button class="voice-play-btn" data-audio="' + msg.audioUrl + '"><i class="fas fa-play"></i></button>' +
+                        '<div class="voice-info">' +
+                            '<div class="voice-label"><i class="fas fa-microphone"></i> رسالة صوتية</div>' +
+                            '<div class="voice-dur">' + (msg.duration || 0) + ' ثانية</div>' +
+                        '</div>' +
+                    '</div>';
+            } else {
+                contentBody = '<p class="msg-text">' + escapeHtml(msg.text) + '</p>';
+            }
+
+            div.innerHTML =
+                '<div class="msg-row ' + rowClass + '">' +
+                    '<div class="msg-content">' +
+                        '<div class="msg-sender">' + escapeHtml(msg.username || 'مستخدم') + '</div>' +
+                        contentBody +
+                        '<div class="msg-time">' + timeStr + '</div>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+
+        // Attach image click handler
+        var img = div.querySelector('.msg-img');
+        if (img) {
+            img.addEventListener('click', function() {
+                showImageModalFn(this.getAttribute('data-src'));
+            });
+        }
+
+        // Attach voice play handler
+        var playBtn = div.querySelector('.voice-play-btn');
+        if (playBtn) {
+            playBtn.addEventListener('click', function() {
+                toggleAudioPlay(this);
+            });
+        }
+    }
+
+    function updateMsgCount() {
+        if (els.messageCountDisplay) {
+            els.messageCountDisplay.textContent = '• ' + messages.length + ' رسالة';
+        }
+    }
+
+    /* ==============================================================
+       SEND MESSAGE
+    ============================================================== */
+    function sendMessage() {
+        if (!els.messageInput || !currentUser) return;
+        var text = els.messageInput.value.trim();
+        if (!text || text.length > 500) return;
+
+        var msg = {
+            id: 'msg_' + (++msgCounter),
+            text: text,
+            timestamp: Date.now(),
+            type: 'text',
+            username: currentUser.username,
+            userId: currentUser.id
+        };
+
+        messages.push(msg);
+        displayMessage(msg);
+        updateMsgCount();
+
+        els.messageInput.value = '';
+        els.messageInput.style.height = 'auto';
+        updateCharCount();
+    }
+
+    /* ==============================================================
+       SEND IMAGE
+    ============================================================== */
+    function handleImageSend(file) {
+        if (!allowImgs) {
+            showAlertModal('إرسال الصور غير مسموح في هذه الغرفة');
+            return;
+        }
+        if (!file || !file.type.startsWith('image/')) {
+            showAlertModal('يرجى اختيار ملف صورة صحيح');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            showAlertModal('حجم الصورة كبير جداً (الحد الأقصى 5 ميجابايت)');
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var msg = {
+                id: 'msg_' + (++msgCounter),
+                imageUrl: e.target.result,
+                timestamp: Date.now(),
+                type: 'image',
+                username: currentUser.username,
+                userId: currentUser.id
+            };
+            messages.push(msg);
+            displayMessage(msg);
+            updateMsgCount();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    /* ==============================================================
+       VOICE RECORDING
+    ============================================================== */
+    function startVoiceRecording() {
+        if (!allowVoice) {
+            showAlertModal('الرسائل الصوتية غير مسموحة في هذه الغرفة');
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = function(event) {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = function() {
+                    if (audioChunks.length > 0) {
+                        var audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        sendVoiceMessage(audioBlob);
+                    }
+                    stream.getTracks().forEach(function(track) { track.stop(); });
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                recordingStartTime = Date.now();
+
+                els.voiceRecordingPanel.classList.add('active');
+                recordingTimerInterval = setInterval(updateRecordingTimerDisplay, 1000);
+
+                // Auto-stop at 60s
+                setTimeout(function() {
+                    if (isRecording) stopVoiceRecording();
+                }, 60000);
+            })
+            .catch(function() {
+                showAlertModal('لا يمكن الوصول للميكروفون. تأكد من السماح بالوصول.');
+            });
+    }
+
+    function stopVoiceRecording() {
+        if (mediaRecorder && isRecording) {
+            mediaRecorder.stop();
+            isRecording = false;
+            if (recordingTimerInterval) { clearInterval(recordingTimerInterval); recordingTimerInterval = null; }
+            els.voiceRecordingPanel.classList.remove('active');
+        }
+    }
+
+    function cancelVoiceRecording() {
+        if (mediaRecorder && isRecording) {
+            audioChunks = [];
+            mediaRecorder.stop();
+            isRecording = false;
+            if (recordingTimerInterval) { clearInterval(recordingTimerInterval); recordingTimerInterval = null; }
+            els.voiceRecordingPanel.classList.remove('active');
+            if (mediaRecorder.stream) {
+                mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
+            }
+        }
+    }
+
+    function updateRecordingTimerDisplay() {
+        if (els.recordingTimer && isRecording) {
+            var elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+            var m = Math.floor(elapsed / 60);
+            var s = elapsed % 60;
+            els.recordingTimer.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        }
+    }
+
+    function sendVoiceMessage(audioBlob) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var msg = {
+                id: 'msg_' + (++msgCounter),
+                audioUrl: e.target.result,
+                duration: Math.floor((Date.now() - recordingStartTime) / 1000),
+                timestamp: Date.now(),
+                type: 'voice',
+                username: currentUser.username,
+                userId: currentUser.id
+            };
+            messages.push(msg);
+            displayMessage(msg);
+            updateMsgCount();
+        };
+        reader.readAsDataURL(audioBlob);
+    }
+
+    /* ==============================================================
+       AUDIO PLAYBACK
+    ============================================================== */
+    function toggleAudioPlay(button) {
+        var audioUrl = button.getAttribute('data-audio');
+        var audio = button.parentElement.querySelector('audio');
+
+        if (!audio) {
+            audio = document.createElement('audio');
+            audio.src = audioUrl;
+            audio.preload = 'metadata';
+            button.parentElement.appendChild(audio);
+
+            audio.addEventListener('ended', function() {
+                button.innerHTML = '<i class="fas fa-play"></i>';
+            });
+        }
+
+        if (audio.paused) {
+            audio.play();
+            button.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            audio.pause();
+            button.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    }
+
+    /* ==============================================================
+       IMAGE MODAL
+    ============================================================== */
+    function showImageModalFn(imageUrl) {
+        els.imagePreviewImg.src = imageUrl;
+        els.imagePreviewModal.classList.add('active');
+    }
+
+    // Close on backdrop click
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'imagePreviewModal') {
+            els.imagePreviewModal.classList.remove('active');
+        }
+    });
+
+    /* ==============================================================
+       CHAR COUNT
+    ============================================================== */
+    function updateCharCount() {
+        if (!els.messageInput || !els.charCount) return;
+        var len = els.messageInput.value.length;
+        els.charCount.textContent = len + '/500';
+        els.charCount.className = 'char-counter';
+        if (len > 450) els.charCount.classList.add('over');
+        else if (len > 400) els.charCount.classList.add('warn');
+    }
+
+    /* ==============================================================
+       CUSTOM IMAGE UPLOAD
+    ============================================================== */
+    function handleCustomImage(file) {
+        if (!file || !file.type.startsWith('image/')) {
+            showAlertModal('يرجى اختيار ملف صورة صحيح');
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var customImg = {
+                url: e.target.result,
+                name: 'صورة مخصصة',
+                id: 'custom_' + Date.now(),
+                emoji: '🖼️'
+            };
+
+            var cell = document.createElement('div');
+            cell.className = 'img-cell';
+            cell.innerHTML =
+                '<img src="' + customImg.url + '" alt="' + customImg.name + '">' +
+                '<div class="img-num" style="background:var(--c-accent);right:auto;left:3px">مخصصة</div>' +
+                '<div class="img-name">' + customImg.emoji + ' ' + customImg.name + '</div>';
+
+            cell.addEventListener('click', function() { selectImage(customImg, cell); });
+            if (els.imageGallery) {
+                els.imageGallery.insertBefore(cell, els.imageGallery.firstChild);
+                selectImage(customImg, cell);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    /* ==============================================================
+       SHARE ROOM
+    ============================================================== */
+    function shareRoom() {
+        if (!selectedImage || !els.passwordInput || !els.passwordInput.value.trim()) {
+            showAlertModal('لمشاركة الغرفة، شارك الصورة المختارة وكلمة المرور مع أصدقائك');
+            return;
+        }
+
+        var feats = [];
+        if (allowVoice) feats.push('رسائل صوتية');
+        if (allowImgs) feats.push('صور');
+
+        var shareText =
+            '🔐 انضم لغرفة المحادثة الآمنة!\n\n' +
+            'المنظر: ' + selectedImage.name + ' ' + selectedImage.emoji + '\n' +
+            'كلمة المرور: ' + els.passwordInput.value.trim() + '\n' +
+            'العدد الأقصى: ' + maxUsers + (maxUsers === 2 ? ' شخصان' : ' أشخاص') + '\n' +
+            'المدة: ' + selectedDuration + ' دقيقة\n' +
+            'الميزات: ' + (feats.join('، ') || 'نص فقط');
+
+        if (navigator.share) {
+            navigator.share({ title: 'غرفة المحادثة الآمنة', text: shareText }).catch(function() {});
+        } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(shareText).then(function() {
+                showToast('تم نسخ معلومات الغرفة!', 'success');
+            }).catch(function() {});
+        }
+    }
+
+    /* ==============================================================
+       LEAVE ROOM
+    ============================================================== */
+    function leaveRoom() {
+        showConfirmModal('هل أنت متأكد من مغادرة الغرفة؟', function() {
+            addSystemMessage(currentUser.username + ' غادر الجلسة 👋');
+
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (isRecording) cancelVoiceRecording();
+
+            setTimeout(function() {
+                els.chatScreen.classList.remove('active');
+                els.loginScreen.style.display = '';
+
+                els.messagesContainer.innerHTML =
+                    '<div class="welcome-msg">' +
+                        '<div class="icon">🎉</div>' +
+                        '<h3>مرحباً بك في الغرفة!</h3>' +
+                        '<p>ابدأ المحادثة الآن...</p>' +
+                    '</div>';
+
+                currentRoom = null;
+                currentUser = null;
+                sessionStartTime = null;
+                messages = [];
+                msgCounter = 0;
+            }, 300);
+        });
+    }
+
+    /* ==============================================================
+       NEW SESSION
+    ============================================================== */
+    function createNewSession() {
+        els.expiredScreen.classList.remove('active');
+        els.loginScreen.style.display = '';
+
+        selectedImage = null;
+        selectedDuration = 5;
+        currentRoom = null;
+        currentUser = null;
+        sessionStartTime = null;
+        sessionDuration = 5 * 60 * 1000;
+        maxUsers = 5;
+        allowVoice = true;
+        allowImgs = true;
+        messages = [];
+        msgCounter = 0;
+
+        if (els.usernameInput) els.usernameInput.value = '';
+        if (els.passwordInput) els.passwordInput.value = '';
+        if (els.customDuration) els.customDuration.value = '';
+
+        // Reset duration buttons
+        var durBtns = document.querySelectorAll('.dur-btn');
+        durBtns.forEach(function(b) { b.classList.remove('active'); });
+        var first = document.querySelector('.dur-btn[data-duration="5"]');
+        if (first) first.classList.add('active');
+
+        // Reset image selection
+        var selCell = els.imageGallery.querySelector('.selected');
+        if (selCell) selCell.classList.remove('selected');
+
+        if (els.maxUsersSelect) els.maxUsersSelect.value = '5';
+        if (els.allowVoiceMessages) els.allowVoiceMessages.checked = true;
+        if (els.allowImages) els.allowImages.checked = true;
+
+        els.messagesContainer.innerHTML =
+            '<div class="welcome-msg">' +
+                '<div class="icon">🎉</div>' +
+                '<h3>مرحباً بك في الغرفة!</h3>' +
+                '<p>ابدأ المحادثة الآن...</p>' +
+            '</div>';
+
+        updateEnterButton();
+        updatePreview();
+    }
+
+    /* ==============================================================
+       INITIALIZATION
+    ============================================================== */
+    document.addEventListener('DOMContentLoaded', function() {
+        initDOM();
+        loadImageGallery();
+        setupDurationButtons();
+
+        // Room settings listeners
+        if (els.maxUsersSelect) {
+            els.maxUsersSelect.addEventListener('change', function() {
+                maxUsers = parseInt(els.maxUsersSelect.value);
+                updatePreview();
+            });
+        }
+        if (els.allowVoiceMessages) {
+            els.allowVoiceMessages.addEventListener('change', function() {
+                allowVoice = els.allowVoiceMessages.checked;
+                updatePreview();
+            });
+        }
+        if (els.allowImages) {
+            els.allowImages.addEventListener('change', function() {
+                allowImgs = els.allowImages.checked;
+                updatePreview();
+            });
+        }
+
+        // Login inputs
+        if (els.usernameInput) {
+            els.usernameInput.addEventListener('input', function() {
+                updateEnterButton();
+                updatePreview();
+            });
+        }
+        if (els.passwordInput) {
+            els.passwordInput.addEventListener('input', updateEnterButton);
+        }
+        if (els.enterRoomBtn) {
+            els.enterRoomBtn.addEventListener('click', enterRoom);
+        }
+        if (els.uploadImageBtn) {
+            els.uploadImageBtn.addEventListener('click', function() { els.customImageInput.click(); });
+        }
+        if (els.customImageInput) {
+            els.customImageInput.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (file) handleCustomImage(file);
+            });
+        }
+
+        // Enter key on login
+        [els.usernameInput, els.passwordInput].forEach(function(input) {
+            if (input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && els.enterRoomBtn && !els.enterRoomBtn.disabled) {
+                        enterRoom();
+                    }
+                });
+            }
+        });
+
+        // Message input
+        if (els.messageInput) {
+            els.messageInput.addEventListener('input', function() {
+                updateCharCount();
+                els.messageInput.style.height = 'auto';
+                els.messageInput.style.height = els.messageInput.scrollHeight + 'px';
+            });
+            els.messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        if (els.sendMessageBtn) els.sendMessageBtn.addEventListener('click', sendMessage);
+        if (els.sendImageBtn) els.sendImageBtn.addEventListener('click', function() { els.imageMessageInput.click(); });
+        if (els.imageMessageInput) {
+            els.imageMessageInput.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (file) handleImageSend(file);
+            });
+        }
+
+        // Voice
+        if (els.voiceRecordBtn) els.voiceRecordBtn.addEventListener('click', startVoiceRecording);
+        if (els.stopRecordingBtn) els.stopRecordingBtn.addEventListener('click', stopVoiceRecording);
+        if (els.cancelRecordingBtn) els.cancelRecordingBtn.addEventListener('click', cancelVoiceRecording);
+
+        // Header actions
+        if (els.shareRoomBtn) els.shareRoomBtn.addEventListener('click', shareRoom);
+        if (els.leaveRoomBtn) els.leaveRoomBtn.addEventListener('click', leaveRoom);
+        if (els.newSessionBtn) els.newSessionBtn.addEventListener('click', createNewSession);
+
+        updateCharCount();
+        updatePreview();
+        updateEnterButton();
+    });
+</script>
+</body>
+</html>
